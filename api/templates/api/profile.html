@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+
+
+{% block title %}
+{{user.first_name}} {{user.last_name}} | (@{{user.username}})
+{% endblock %}
+
+{% block content %}
+
+
+{% if user == request.user %}
+<div id="profile">
+    <h1>{{user.username}}</h1><a href="{% url 'api:editprofile' user.id %}">edit</a>
+</div>
+{% else %}
+
+<h1>{{user.username}}</h1>
+<p>
+    {% if request.user in followers %}
+        <a href="{% url 'api:unfollow' user.id %}">unfollow</a>
+    {% else %}
+        <a href="{% url 'api:follow' user.id %}">follow</a>
+    {% endif %}
+</p>
+
+{% endif %}
+<div id="images">
+    <h4>my images</h4>
+    {% for image in  user.image_set.all %}
+    <li>
+        <img src="{{image.photo}}" alt="" height="150px" width="150px"> <br>
+        {% if user == request.user %}
+        <a href="{% url 'api:addimagetocollection' 1 image.id %}">add this image to collection</a> <br>
+        <a href="{% url 'api:deleteimagee' image.id %}">delete image</a> <br>
+        <a href="{% url 'api:editimage' image.id %}">edit image</a>
+        {% endif %}
+    </li>
+    {% endfor%}
+</div>
+
+{% if user == request.user %}
+<div id="likes">
+    <h4>my likes</h4>
+    {% for like in  user.like_set.all %}
+    <li> {{like.image.id}} </li>
+    {% endfor%}
+</div>
+
+<div id="collection">
+    <h4>my collections</h4>
+    <p><a href="{% url 'api:createcollection' %}">new collection</a></p>
+    {% for collection in  user.collection_set.all %}
+    <li>
+        {{collection.name}}
+        <a href="{% url 'api:collectiondetail'  collection.id %}">detail</a>
+    </li>
+    {% endfor%}
+</div>
+{% endif %}
+<div class="followers">
+    <p>
+        <h4>users i follow : {{ i_follow|length }}</h4>
+        {% for follower in i_follow %}
+            {{follower}}
+        {% endfor%}
+        <h4>users that follow me : {{ followers|length }}</h4>
+        {% for follower in followers %}
+            {{follower}} <br>
+        {% endfor%}
+    </p>
+</div>
+
+
+{% endblock %}

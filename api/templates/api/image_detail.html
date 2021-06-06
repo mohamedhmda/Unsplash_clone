@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+
+{% block title %}
+    {% if image.location %}
+        free {{image.location}} image
+    {% else %}
+        HD photo by {{image.user}}
+    {% endif %}
+{% endblock %}
+
+{% block content %}
+<ul>
+    <li>
+        <img src="{{image.photo}}" alt="" height="350px" width="350px">
+        <h3>{{image.user}} / {{image.user.email}} <a href="{% url 'api:profile' image.user.id %}">visit profile</a></h3> 
+        {% for tag in image.tags.all %}
+        #{{ tag }} <br>
+        {% endfor %}
+        likes : {{image.likes}} <br>
+        location : {{image.location}} <br>
+        published on : {{image.published_on}} <br>
+
+        {% if user.is_authenticated %}
+            {% if liked %}
+                <a href="{% url 'api:unlikeimage' image.id %}">unLike this image</a>
+            {% else %}
+                <a href="{% url 'api:likeimage' image.id %}">Like this image</a>
+            {% endif %}
+
+            {% if image.user == user %}
+                <a href="{% url 'api:editimage' image.id %}">edit image</a>
+            {% endif %}
+
+            <br><br>
+
+            {% for collection in collections %}
+                {% if collection in in_collections %}
+                    {{collection.name}} : <a href="{% url 'api:removeimagefromcollection' collection.id image.id %}">remove</a>
+                {% else %}
+                    {{collection.name}} : <a href="{% url 'api:addimagetocollection' collection.id image.id %}">add</a>
+                {% endif %}
+            {% endfor %}
+
+            <br><br>
+            
+        {% endif %}
+        <br><br>
+        <a href="javascript:downloadImage('{% url 'api:downloadimage' image.id %}')">Download image</a> <br> <br>
+
+        
+    </li>
+</ul>
+
+
+<script>
+    async function downloadImage(imageSrc) {
+        const downloadlink = fetch(imageSrc)
+            .then(response => response.json())
+            .then(data => {
+                const link = document.createElement('a')
+                link.href = "/images/" + data['image_filename']
+                link.download = data['image_filename']
+                document.body.appendChild(link)
+                link.click()
+                document.body.removeChild(link)
+
+
+                var deletelink = '{% url "api:deleteimagelocal" "image_name" %}'.replace('image_name', 
+                                    data['image_filename'])
+                setTimeout(() => {
+                    fetch(deletelink)
+                }, 1000);
+
+            })
+    }
+</script>
+{% endblock %}

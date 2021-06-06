@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+
+{% block title %}
+    {{collection.name}} 
+{% endblock %}
+
+{% block content %}
+    <h2>
+    {% for tag in tags %}
+        {{tag}} 
+    {% endfor %}
+    </h2>
+    <ul>
+        {%for image in Images%}
+        <li>
+            <img src="{{image.photo}}" alt="">
+            <h3>{{image.user}}</h3>
+            {% for tag in image.tags.all %}
+                #{{ tag }} <br>
+            {% endfor %}
+            {{image.likes}}
+            {{image.location}}
+            {{image.published_on}}
+        </li>
+        {% endfor%}
+    </ul>
+{% endblock %}

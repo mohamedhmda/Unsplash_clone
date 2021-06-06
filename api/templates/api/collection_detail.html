@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+
+{% block title %}
+    {{collection.name}} 
+{% endblock %}
+
+{% block content %}
+
+<div id="collection">
+    <li> 
+        {{collection.name}} 
+        <a href="{% url 'api:editcollection'  collection.id %}">edit collection</a>
+        <a href="{% url 'api:deletecollection'  collection.id %}">delete collection</a>
+    </li>
+        {% for image in collection.images.all %}
+        <li>
+            <img src="{{image.photo}}" alt="">
+            <p><a href="{% url 'api:removeimagefromcollection' collection.id image.id %}">remove from {{collection.name}}</a></p>
+        </li>
+        {% endfor%}
+</div>
+{% endblock %}

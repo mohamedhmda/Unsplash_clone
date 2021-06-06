@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% block title %}
+    Beautiful Free Images & Pictures
+{% endblock %}
+
+{% block content %}
+
+    <h1>This is index</h1>
+
+
+    
+    <ul>
+        {%for image in Images%}
+        <li>
+            <img src="{{image.photo}}" alt="{{image.description}}" loading="lazy" height="150px" width="150px">
+            <p><a href="{% url 'api:image' image.id %}">detail</a></p>
+        </li>
+        {% endfor%}
+    </ul>
+
+<script>
+    
+</script>
+{% endblock %}

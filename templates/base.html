@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    {% load static %}
+    <title>{% block title %}My amazing site{% endblock %}</title>
+</head>
+
+<body>
+
+    <div class="navbar">
+        <form action="{% url 'api:searchimage' %}" method="GET">
+            <input name="tags" type="text" placeholder="Search...">
+            <input type="submit" value="search">
+        </form>
+        {% if request.user.is_authenticated %}
+        <p>
+            <p><a href="{% url 'api:home' %}">Home</a>
+                <a href="{% url 'api:uploadimage' %}">uploadimage</a>
+                <a href="{% url 'api:profile' request.user.id %}">My profile</a>
+                <a href="{% url 'logout' %}">logout</a></p>
+        </p>
+        {% else %}
+        <p>
+            <p><a href="{% url 'api:home' %}">Home</a>
+                <a href="{% url 'login' %}">Login</a>
+                <a href="{% url 'api:signup' %}">Register</a></p>
+        </p>
+        {% endif %}
+    </div>
+    <div id="content">
+        {% block content %}
+
+        {% endblock %}
+    </div>
+    <br>############################# <br>
+    <div class="notif_unr_count">
+
+    </div>
+    <div class="notify_menu_class">
+
+    </div>
+    <script src="{% static 'api/moment.js' %}"></script>
+    <script>
+        function read_unread_anchor() {
+            var fet = fetch("{% url 'notifications:live_all_notification_list' %}")
+                .then(
+                    response => response.json()
+                ).then(
+                    data => {
+                        var notif_count = data['all_count']
+                        var notif_list = data['all_list']
+                        var menus = document.getElementsByClassName("notify_menu_class")
+                        var unread_count_div = document.getElementsByClassName("notif_unr_count")
+                        var unread_count = 0
+
+
+                        var notifs = notif_list.map(function (item) {
+                            var notif = ""
+                            if (typeof item.recipient !== 'undefined') {
+                                if (item.recipient == "{{ request.user.id }}") {
+
+                                }
+                            }
+                            if (typeof item.actor !== 'undefined') {
+                                notif = item.actor;
+                            }
+                            if (typeof item.verb !== 'undefined') {
+                                notif = notif + " " + item.verb;
+                            }
+                            if (typeof item.target !== 'undefined') {
+                                var obj_link = "{% url 'api:image' 0 %}".replace('0', item.target.slice(14, -1))
+                                var obj_a = "<a href='" + obj_link + "'>this</a>"
+                                notif = notif + " " + obj_a;
+                            }
+                            if (typeof item.timestamp !== 'undefined') {
+                                // 2021-06-04T23:01:00.722Z 
+                                var time = moment(item.timestamp, "YYYY-MM-DD HH:mm:ss Z").fromNow();
+                                notif = notif + " " + time;
+                            }
+                            if (typeof item.unread !== 'undefined') {
+                                read_unread = ""
+                                if (item.unread === true) {
+                                    // mark_as_read
+                                    var link = 'javascript:markasreadnotif("' + item.slug + '","' + item
+                                        .unread + '")'
+                                    var text = "Mark as read"
+                                    read_unread = "<a href='" + link + "'>" + text + "</a>"
+
+                                    unread_count++
+                                } else {
+                                    // mark_as_unread
+                                    var link = 'javascript:markasreadnotif("' + item.slug + '","' + item
+                                        .unread + '")'
+                                    var text = "Mark as unread"
+                                    read_unread = "<a href='" + link + "'>" + text + "</a>"
+                                }
+                                notif = notif + " " + read_unread;
+                            }
+                            return '<li>' + notif + '</li>';
+                        }).join('')
+
+                        for (var j = 0; j < unread_count_div.length; j++) {
+                            unread_count_div[j].innerHTML = "You have " + unread_count + " unread notifications.";
+                        }
+                        for (var i = 0; i < menus.length; i++) {
+                            menus[i].innerHTML = notifs;
+                        }
+                    }
+                )
+        }
+
+        function markasreadnotif(notif_slug, unread_flag) {
+            var url = ""
+            if (unread_flag === 'true') {
+                url = "{% url 'notifications:mark_as_read' 0 %}".replace('0', notif_slug)
+                read_unread_anchor.unread_count--
+            } else {
+                url = "{% url 'notifications:mark_as_unread' 0 %}".replace('0', notif_slug)
+                read_unread_anchor.unread_count++
+            }
+
+            fetch(url).then(x => read_unread_anchor())
+        }
+
+        read_unread_anchor();
+        setInterval(() => {
+            read_unread_anchor()
+        }, 10000);
+    </script>
+</body>
+
+</html>
