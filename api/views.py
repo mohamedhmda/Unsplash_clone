@@ -1,3 +1,4 @@
+from logging import error
 from django.conf.urls import url
 from django.http.response import JsonResponse
 from django.http import HttpResponse
@@ -17,7 +18,7 @@ from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
 
 from .models import Collection, Follower, Image,Like
-from .forms import SignUpForm,UploadImageForm
+from .forms import SignupForm,UploadImageForm
 from .mixins import OwnerRequiredMixin, UserEditMixin
 
 import wget, os
@@ -40,6 +41,13 @@ class HomeView(generic.ListView):
     def get_queryset(self):
         return Image.objects.all()
 
+    def get_context_data(self, **kwargs):
+        context = super(HomeView, self).get_context_data(**kwargs) # get the default context data
+        if self.request.user.is_authenticated:
+            context['liked'] = Like.objects.filter(user=self.request.user).values_list("image", flat=True)
+            context['collections'] = list(Collection.objects.filter(user=self.request.user))
+        context['intro_pic'] = Image.objects.last()
+        return context
 ##
 ## working with images
 ##
@@ -57,7 +65,7 @@ class ImageDetailView(DetailView):
 
 @login_required
 def UploadImage(request):
-    template_name = 'api/image_form.html'
+    template_name = 'api/image_upload_form.html'
     # if this is a POST request         
     if request.method == 'POST':
         form = UploadImageForm(request.POST,request.FILES)
@@ -143,21 +151,24 @@ def DeleteImageFromLocal(request,image_name):
 def like_image(request,image_id):
     user = get_object_or_404(User, pk=request.user.id)
     image = get_object_or_404(Image, pk=image_id)
-    like = Like(
-        user = user,
-        image = image
-        )
-    like.save()
-    setattr(image, "likes", getattr(image,"likes")+1)
-    image.save()
-    notify.send(
-                request.user,
-                recipient = image.user,
-                verb = "Liked your image",
-                target = image
-                )
 
-    return redirect(reverse('api:image',kwargs={'pk' : image_id}))
+    if Like.objects.filter(image_id=image.id, user_id=user.id).exists():
+        return HttpResponse(status=404)
+    else:
+        like = Like(
+            user = user,
+            image = image
+            )
+        like.save()
+        setattr(image, "likes", getattr(image,"likes")+1)
+        image.save()
+        notify.send(
+                    request.user,
+                    recipient = image.user,
+                    verb = "Liked your image",
+                    target = image
+                    )
+    return redirect(reverse('api:home'))
 
 @login_required
 def unlike_image(request,image_id):
@@ -165,7 +176,7 @@ def unlike_image(request,image_id):
     setattr(like.image, "likes", getattr(like.image,"likes")-1)
     like.image.save()
     like.delete()
-    return redirect(reverse('api:image',kwargs={'pk' : image_id}))
+    return redirect(reverse('api:home'))
 
 
 ##
@@ -251,17 +262,18 @@ def RemoveImageFromCollection(request,collection_id, image_id):
 
 def signup(request):
     if request.method == 'POST':
-        form = SignUpForm(request.POST)
+        form = SignupForm(request.POST)
         if form.is_valid():
             form.save()
             username = form.cleaned_data.get('username')
             raw_password = form.cleaned_data.get('password1')
             user = authenticate(username=username, password=raw_password)
             login(request, user)
+            new_follower = Follower.objects.create(user = user)
             return redirect(reverse('api:home'))
     else:
-        form = SignUpForm()
-    return render(request, 'registration/signup.html', {'form': form})
+        form = SignupForm()
+    return render(request, 'account/signup.html', {'form': form})
 
 class ProfileDetailView(DetailView):
     model = User
@@ -271,8 +283,8 @@ class ProfileDetailView(DetailView):
         context = super(ProfileDetailView, self).get_context_data(**kwargs) # get the default context data
         context['i_follow'] = list(self.object.followers.all())
         x = self.object.follower_set.first()
-        context['followers'] = list(x.followers.all())
-
+        context['followers'] = list(x.followers.all()) if x is not None else []
+        context['liked'] = Like.objects.filter(user=self.request.user).values_list("image", flat=True)
         return context
 
 
@@ -317,3 +329,7 @@ def UnfollowUser(request,user_id):
             return HttpResponse("you are not a follower")
     else:
         return HttpResponse("cant unfollow yourself")
+
+@login_required
+def notifications_view(request):
+    return render(request, 'api/notifications.html')

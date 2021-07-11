@@ -9,7 +9,7 @@ from django.contrib.auth.models import User
 from .models import Image
 
 
-class SignUpForm(UserCreationForm):
+class SignupForm(UserCreationForm):
     first_name = forms.CharField(max_length=30, required=True, help_text='Required.')
     last_name = forms.CharField(max_length=30, required=True, help_text='Required.')
     email = forms.EmailField(max_length=254, help_text='Required. Inform a valid email address.')
@@ -20,7 +20,7 @@ class SignUpForm(UserCreationForm):
 
     
 class UploadImageForm(forms.ModelForm):
-    photo = forms.FileField()
+    photo = forms.FileField(widget=forms.FileInput(attrs={'accept':'image/*'}))
     class Meta:
         model = Image
         fields = ('tags', 'description','photo', 'location')

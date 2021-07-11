@@ -3,130 +3,138 @@
 
 <head>
     {% load static %}
+    {% load notifications_tags %}
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{% static 'api/main.css' %}">
+    <link rel="stylesheet" href="{% static 'api/profile.css' %}">
     <title>{% block title %}My amazing site{% endblock %}</title>
 </head>
 
 <body>
+    <header>
+        <div class="nav-container">
+            <nav>
+                <a href="{% url 'api:home' %}" class="brand">
+                    <!--a href="" class="navbar-brand">Unsplash</a-->
+                    <svg width="26" height="26" class="navbar-brand" version="1.1" viewBox="0 0 32 32"
+                        aria-labelledby="unsplash-home" aria-hidden="false">
+                        <title id="unsplash-home">Unsplash Home</title>
+                        <path d="M10 9V0h12v9H10zm12 5h10v18H0V14h10v9h12v-9z"></path>
+                    </svg>
+                </a>
+                
+                <form action="{% url 'api:searchimage' %}" method="GET" class="search-bar-form">
+                    <input type="search" name="tags" id="" placeholder="Search ...">
+                </form>
 
-    <div class="navbar">
-        <form action="{% url 'api:searchimage' %}" method="GET">
-            <input name="tags" type="text" placeholder="Search...">
-            <input type="submit" value="search">
-        </form>
-        {% if request.user.is_authenticated %}
-        <p>
-            <p><a href="{% url 'api:home' %}">Home</a>
-                <a href="{% url 'api:uploadimage' %}">uploadimage</a>
-                <a href="{% url 'api:profile' request.user.id %}">My profile</a>
-                <a href="{% url 'logout' %}">logout</a></p>
-        </p>
-        {% else %}
-        <p>
-            <p><a href="{% url 'api:home' %}">Home</a>
-                <a href="{% url 'login' %}">Login</a>
-                <a href="{% url 'api:signup' %}">Register</a></p>
-        </p>
-        {% endif %}
-    </div>
+                {% if request.user.is_authenticated %}
+                <section class="link-list-profile">
+                    <button class="profile-pic" onclick="openMenu('profile-menu-container')" role="button" aria-haspopup="true" aria-expanded="false" type="button" >
+                        <div class="profile-pic-container">
+                            <img class="avatar"
+                                srcset="https://images.unsplash.com/placeholder-avatars/extra-large.jpg?dpr=1&amp;auto=format&amp;fit=crop&amp;w=27&amp;h=27&amp;q=60&amp;crop=faces&amp;bg=fff 1x, https://images.unsplash.com/placeholder-avatars/extra-large.jpg?dpr=2&amp;auto=format&amp;fit=crop&amp;w=27&amp;h=27&amp;q=60&amp;crop=faces&amp;bg=fff 2x"
+                                src="https://images.unsplash.com/placeholder-avatars/extra-large.jpg?auto=format&amp;fit=crop&amp;w=27&amp;h=27&amp;q=60&amp;crop=faces&amp;bg=fff"
+                                role="presentation" alt="Avatar of user mohamed hamaida" width="27" height="27">
+                        </div>
+                        <span class="notificationcount"></span>
+                    </button>
+                    <div class="profile-menu">
+                        <div class="profile-menu-container" id="profile-menu-container">
+                            <div class="profile-menu-container-line"></div>
+                            <ul class="profile-menu-list">
+                                <li>
+                                    <form>
+                                        <button type="submit" class="notifications" formaction="{% url 'api:notificationspanel' %}">Notifications : {% notifications_unread %}</button>
+                                    </form>
+                                </li>
+                                <li>
+                                    <a href="{% url 'api:profile' request.user.id %}">Profile</a>
+                                </li>
+                                <li>
+                                    <div class="submit-photo-container">
+                                        <form>
+                                            <button type="submit" class="submit-photo" formaction="{% url 'api:uploadimage' %}">Submit a photo</button>
+                                        </form>
+                                    </div>
+                                </li>
+                            </ul>
+                            <hr class="menu-hr">
+                            <ul class="logout-list">
+                                <li>
+                                    <a href="{% url 'account_logout' %}">Logout</a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+
+                </section>
+                {% else %}
+                <section class="link-list-other">
+                    <div class="hamburger-menu" onclick="openMenu('other-menu-container-mobile')">
+                        <svg width="24" height="24" version="1.1" viewBox="0 0 32 32" aria-hidden="false">
+                            <path d="M4 21.3h24V24H4v-2.7zM4 8v2.7h24V8H4zm0 9.3h24v-2.7H4v2.7z"></path>
+                        </svg>
+                    </div>
+                    <div class="other-menu-container" id="other-menu-container-mobile">
+                        <div class="other-menu-container-line"></div>
+                        <ul class="other-menu-list">
+                            <li>
+                                <a href="{% url 'account_login' %}">Login</a>
+                            </li>
+                            <li>
+                                <a href="{% url 'api:signup' %}">Join</a>
+                            </li>
+                            <li>
+                                <div class="submit-photo-container">
+                                    <form>
+                                        <button type="submit" class="submit-photo" formaction="{% url 'api:uploadimage' %}">Submit a photo</button>
+                                    </form>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="other-menu-container-web" id="other-menu-container-web">
+                        <div>
+                            <div class="submit-photo-container">
+                                <form>
+                                    <button type="submit" class="submit-photo"formaction="{% url 'api:uploadimage' %}">Submit
+                                        <span class="only-on-big"> a photo</span></button>
+                                </form>
+                            </div>
+                            <div class="other-menu-list">
+                                <a href="{% url 'account_login' %}" class="login">Login</a>
+                                <a href="{% url 'api:signup' %}" class="join">Join free</a>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+                {% endif %}
+            </nav>
+        </div>
+    </header>
+
+    
+
+
     <div id="content">
         {% block content %}
 
         {% endblock %}
     </div>
-    <br>############################# <br>
-    <div class="notif_unr_count">
-
-    </div>
-    <div class="notify_menu_class">
-
-    </div>
-    <script src="{% static 'api/moment.js' %}"></script>
+    
+    
     <script>
-        function read_unread_anchor() {
-            var fet = fetch("{% url 'notifications:live_all_notification_list' %}")
-                .then(
-                    response => response.json()
-                ).then(
-                    data => {
-                        var notif_count = data['all_count']
-                        var notif_list = data['all_list']
-                        var menus = document.getElementsByClassName("notify_menu_class")
-                        var unread_count_div = document.getElementsByClassName("notif_unr_count")
-                        var unread_count = 0
-
-
-                        var notifs = notif_list.map(function (item) {
-                            var notif = ""
-                            if (typeof item.recipient !== 'undefined') {
-                                if (item.recipient == "{{ request.user.id }}") {
-
-                                }
-                            }
-                            if (typeof item.actor !== 'undefined') {
-                                notif = item.actor;
-                            }
-                            if (typeof item.verb !== 'undefined') {
-                                notif = notif + " " + item.verb;
-                            }
-                            if (typeof item.target !== 'undefined') {
-                                var obj_link = "{% url 'api:image' 0 %}".replace('0', item.target.slice(14, -1))
-                                var obj_a = "<a href='" + obj_link + "'>this</a>"
-                                notif = notif + " " + obj_a;
-                            }
-                            if (typeof item.timestamp !== 'undefined') {
-                                // 2021-06-04T23:01:00.722Z 
-                                var time = moment(item.timestamp, "YYYY-MM-DD HH:mm:ss Z").fromNow();
-                                notif = notif + " " + time;
-                            }
-                            if (typeof item.unread !== 'undefined') {
-                                read_unread = ""
-                                if (item.unread === true) {
-                                    // mark_as_read
-                                    var link = 'javascript:markasreadnotif("' + item.slug + '","' + item
-                                        .unread + '")'
-                                    var text = "Mark as read"
-                                    read_unread = "<a href='" + link + "'>" + text + "</a>"
-
-                                    unread_count++
-                                } else {
-                                    // mark_as_unread
-                                    var link = 'javascript:markasreadnotif("' + item.slug + '","' + item
-                                        .unread + '")'
-                                    var text = "Mark as unread"
-                                    read_unread = "<a href='" + link + "'>" + text + "</a>"
-                                }
-                                notif = notif + " " + read_unread;
-                            }
-                            return '<li>' + notif + '</li>';
-                        }).join('')
-
-                        for (var j = 0; j < unread_count_div.length; j++) {
-                            unread_count_div[j].innerHTML = "You have " + unread_count + " unread notifications.";
-                        }
-                        for (var i = 0; i < menus.length; i++) {
-                            menus[i].innerHTML = notifs;
-                        }
-                    }
-                )
-        }
-
-        function markasreadnotif(notif_slug, unread_flag) {
-            var url = ""
-            if (unread_flag === 'true') {
-                url = "{% url 'notifications:mark_as_read' 0 %}".replace('0', notif_slug)
-                read_unread_anchor.unread_count--
+        function openMenu(menu_id) {
+            var x = document.getElementById(menu_id);
+            if (x.style.display === 'none' || x.style.display === '') {
+                x.style.display = 'block';
+                x.style.transition = '5s';
             } else {
-                url = "{% url 'notifications:mark_as_unread' 0 %}".replace('0', notif_slug)
-                read_unread_anchor.unread_count++
+                x.style.display = 'none'
             }
-
-            fetch(url).then(x => read_unread_anchor())
         }
-
-        read_unread_anchor();
-        setInterval(() => {
-            read_unread_anchor()
-        }, 10000);
     </script>
 </body>
 

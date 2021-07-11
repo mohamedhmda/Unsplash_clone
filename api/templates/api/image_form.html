@@ -1,4 +1,8 @@
-<h2>Upload image</h2>
+{% extends "account/base.html" %}
+{% block head_title %}Edit image{% endblock %}
+
+{% block content %}
+<h2>Edit image</h2>
 <form method="post" enctype="multipart/form-data">
   {% csrf_token %}
   {% for field in form %}
@@ -13,7 +17,13 @@
       {% endfor %}
     </p>
   {% endfor %}
-  <button type="submit">Submit</button>
+  <p>
+    <input type="submit" value="Upload image">
+  </p>
 </form>
+<p>OR</p>
+<p>
+  <a href="{% url 'api:deleteimagee' image.id %}" id="delete_image">Delete Image</a>
+</p>
 
-uploadimage
+{% endblock %}

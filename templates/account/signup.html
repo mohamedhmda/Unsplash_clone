@@ -1,0 +1,39 @@
+{% extends "account/base.html" %}
+{% block head_title %}Signup{% endblock %}
+
+{% load account socialaccount %}
+{% get_providers as socialaccount_providers %}
+
+{% block content %}
+<h2>Sign up</h2>
+
+<p>Already have an account? Then please <a href="{% url 'account_login' %}">sign in</a>.</p>
+
+<form method="post">
+  {% csrf_token %}
+  {% for field in form %}
+    <p>
+      {{ field.label_tag }}<br>
+      {{ field }}
+      {% if field.help_text %}
+        <small style="color: grey">{{ field.help_text }}</small>
+      {% endif %}
+      {% for error in field.errors %}
+        <p style="color: red">{{ error }}</p>
+      {% endfor %}
+    </p>
+  {% endfor %}
+  <p>
+    <input type="submit" value="Join">
+  </p>
+  <div class="socialaccount_ballot">
+    <p>Or</p>
+    <ul class="socialaccount_providers">
+      {% include "socialaccount/snippets/provider_list.html" with process="login" %}
+    </ul>
+  </div>
+
+  <button type="submit">Sign up</button>
+</form>
+
+{% endblock %}

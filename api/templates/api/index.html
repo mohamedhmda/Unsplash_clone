@@ -1,25 +1,193 @@
 {% extends "base.html" %}
 
 {% block title %}
-    Beautiful Free Images & Pictures
+Beautiful Free Images & Pictures
 {% endblock %}
 
 {% block content %}
 
-    <h1>This is index</h1>
+<main>
+    <div class="intro">
+        <div class="intro-container">
+            <div class="intro-pic-container">
+                <picture class="intro-picture">
+                    <source srcset="{{ intro_pic.photo }}" media="(min-width: 500px)">
+                    <source srcset="{{ intro_pic.photo }}">
+                    <img role="presentation" src="{{ intro_pic.photo }}" alt="">
+                </picture>
+            </div>
+            <div class="intro-text">
+                <div class="intro-text-heading-container">
+                    <div class="intro-text-heading">
+                        <span>Unsplash</span>
+                        <div class="intro-text-heading-div">
+                            <h1>The internet source of Freely usable images.</h1>
+                            <p>Porwered by creators everywhere.</p>
+                            <!--div> Search bar hear </div-->
+                            <div class="intro-search-container">
+                                <div class="intro-search">
+                                    <form action="{% url 'api:searchimage' %}" method="GET" class="intro-search-form">
+                                        <button title="Search Unsplash" type="submit"
+                                            data-test="homepage-header-search-form-button">
+                                            <svg width="32" height="32" class="search-svg" version="1.1"
+                                                viewBox="0 0 32 32" aria-hidden="false">
+                                                <path
+                                                    d="M22 20c1.2-1.6 2-3.7 2-6 0-5.5-4.5-10-10-10S4 8.5 4 14s4.5 10 10 10c2.3 0 4.3-.7 6-2l6.1 6 1.9-2-6-6zm-8 1.3c-4 0-7.3-3.3-7.3-7.3S10 6.7 14 6.7s7.3 3.3 7.3 7.3-3.3 7.3-7.3 7.3z">
+                                                </path>
+                                            </svg>
+                                        </button>
+                                        <input type="search" name="tags" id="" placeholder="Search photos">
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="intro-text-footer-container">
+                    <div class="photo-of-day">
+                        <a href="">photo of the day</a> by {{ intro_pic.user.username }}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="feed">
+        <div class="container">
+            {%for image in Images%}
+            <figure class="item" itemprop="image" itemscope="" itemtype="https://schema.org/ImageObject">
+                <div class="figure-header visible-non">
+                    <span class="edit-button">
+                        {% if image.user == request.user %}
+                        <a href="{% url 'api:editimage' image.id %}">Edit</a>
+                        {% endif %}
+                    </span>
+                    <span class="figure-header-profile">
+                        <a href="{% url 'api:profile' image.user.id %}" class="avatar">
+                            <img class="avatar"
+                                srcset="https://images.unsplash.com/placeholder-avatars/extra-large.jpg?dpr=1&amp;auto=format&amp;fit=crop&amp;w=27&amp;h=27&amp;q=60&amp;crop=faces&amp;bg=fff 1x, https://images.unsplash.com/placeholder-avatars/extra-large.jpg?dpr=2&amp;auto=format&amp;fit=crop&amp;w=27&amp;h=27&amp;q=60&amp;crop=faces&amp;bg=fff 2x"
+                                src="https://images.unsplash.com/placeholder-avatars/extra-large.jpg?auto=format&amp;fit=crop&amp;w=27&amp;h=27&amp;q=60&amp;crop=faces&amp;bg=fff"
+                                role="presentation" alt="Avatar of user mohamed hamaida" width="27" height="27">
+                        </a>
+                        <a href="{% url 'api:profile' image.user.id %}" class="profile-name">{{image.user}}</a>
+                    </span>
+                </div>
+                <img src="{{image.photo}}" alt="{{image.description}}" loading="lazy">
+                <div class="actions visible-non">
+                    <div class="like">
+                        {% if image.id in liked %}
+                        <a href="{% url 'api:unlikeimage' image.id %}" id="unlike"><svg width="32" height="32"
+                                class="button-svg" version="1.1" viewBox="0 0 32 32" aria-hidden="false">
+                                <path
+                                    d="M17.4 29c-.8.8-2 .8-2.8 0l-12.3-12.8c-3.1-3.1-3.1-8.2 0-11.4 3.1-3.1 8.2-3.1 11.3 0l2.4 2.8 2.3-2.8c3.1-3.1 8.2-3.1 11.3 0 3.1 3.1 3.1 8.2 0 11.4l-12.2 12.8z">
+                                </path>
+                            </svg></a>
+                        {% else %}
+                        <a href="{% url 'api:likeimage' image.id %}"><svg width="32" height="32" class="button-svg"
+                                version="1.1" viewBox="0 0 32 32" aria-hidden="false">
+                                <path
+                                    d="M17.4 29c-.8.8-2 .8-2.8 0l-12.3-12.8c-3.1-3.1-3.1-8.2 0-11.4 3.1-3.1 8.2-3.1 11.3 0l2.4 2.8 2.3-2.8c3.1-3.1 8.2-3.1 11.3 0 3.1 3.1 3.1 8.2 0 11.4l-12.2 12.8z">
+                                </path>
+                            </svg></a>
+                        {% endif %}
+                        <a href="javascript:modalopeneer('{{image.id}}')" id="add{{image.id}}"><svg width="32" height="32" class="_2rdbO" version="1.1" viewBox="0 0 32 32"
+                                aria-hidden="false">
+                                <path d="M14 3h4v26h-4zM29 14v4h-26v-4z"></path>
+                            </svg></a>
+                    </div>
+                    <div class="download">
+                        <a href="javascript:downloadImage('{% url 'api:downloadimage' image.id %}')">download</a>
+                    </div>
+                </div>
+                <div class="overlay visible-non" id="open-figure"></div>
+            </figure>
+            <!-- ********************** -->
+            <!-- The  collections Modal -->
+            <div id="collectionsModal{{image.id}}" class="modal">
+                <!-- Modal content -->
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <span class="close">&times;</span>
+                        <h2>Add image to a collection</h2>
+                    </div>
+                    <div class="modal-body">
+                        <p>
+                            <a href="">Create a new Collection</a>
+                        </p>
+                        {% for collection in collections %}
+                            {{collection.name}}
+                            <a href="{% url 'api:addimagetocollection' collection.id image.id %}">add</a>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            <!-- The  collections Modal -->
+            <!-- ********************** -->
+            {% endfor%}
+        </div>
+    </div>
+</main>
 
 
-    
-    <ul>
-        {%for image in Images%}
-        <li>
-            <img src="{{image.photo}}" alt="{{image.description}}" loading="lazy" height="150px" width="150px">
-            <p><a href="{% url 'api:image' image.id %}">detail</a></p>
-        </li>
-        {% endfor%}
-    </ul>
 
+<script src="https://unpkg.com/magic-grid/dist/magic-grid.min.js"></script>
 <script>
+    let magicGrid = new MagicGrid({
+        container: '.container',
+        animate: true,
+        static: true
+    });
+
+    magicGrid.listen();
+
+    async function downloadImage(imageSrc) {
+        const downloadlink = fetch(imageSrc)
+            .then(response => response.json())
+            .then(data => {
+                const link = document.createElement('a')
+                link.href = "/images/" + data['image_filename']
+                link.download = data['image_filename']
+                document.body.appendChild(link)
+                link.click()
+                document.body.removeChild(link)
+
+
+                var deletelink = '{% url "api:deleteimagelocal" "image_name" %}'.replace('image_name',
+                    data['image_filename'])
+                setTimeout(() => {
+                    fetch(deletelink)
+                }, 1000);
+
+            })
+    }
+
+    function modalopeneer(image_id){
+        // Get the modal
+        var modal = document.getElementById("collectionsModal"+image_id);
+
+        // Get the button that opens the modal
+        var btn = document.getElementById("add+image_id");
+
+        // Get the <span> element that closes the modal
+        var span = document.getElementsByClassName("close")[0];
+
+
+        modal.style.display = "block";
+    
+
+        // When the user clicks anywhere outside of the modal, close it
+        window.onclick = function (event) {
+            if (event.target == modal) {
+                modal.style.display = "none";
+            }
+        }
+        // When the user clicks on <span> (x), close the modal
+        span.onclick = function () {
+            modal.style.display = "none";
+        }
+
+
+    }
     
 </script>
 {% endblock %}

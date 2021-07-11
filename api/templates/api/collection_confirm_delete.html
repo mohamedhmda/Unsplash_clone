@@ -1,7 +1,15 @@
-<h1>Delete image</h1>
+{% extends "account/base.html" %}
+{% block head_title %}Delete collection{% endblock %}
+
+{% block content %}
+
+<h2>Delete image</h2>
 <p>Are you sure you want to delete the collection : {{ collection.name }}?</p>
 
 <form action="" method="POST">
-    {% csrf_token %}
+  {% csrf_token %}
+  <p>
     <input type="submit" value="Yes, delete.">
-  </form>
+  </p>
+</form>
+{% endblock %}

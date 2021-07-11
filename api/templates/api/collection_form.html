@@ -1,19 +1,17 @@
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Unsplash</title>
-</head>
-<body>
+{% extends "account/base.html" %}
+{% block head_title %}Collection{% endblock %}
 
-    <form action="" method="post">
-        {% csrf_token %}
+{% block content %}
+<form action="" method="post">
+    {% csrf_token %}
+    <p>
         <table>
-        {{ form.as_table }}
+            {{ form.as_table }}
         </table>
+    </p>
+    <p>
         <input type="submit" value="Submit">
-    </form>
-    
-</body>
-</html>
+    </p>
+</form>
+
+{% endblock %}

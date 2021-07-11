@@ -21,7 +21,7 @@ urlpatterns = [
     path('search/', views.SearchView.as_view(), name = 'searchimage'),
 
     path('colection/<int:pk>', views.CollectionDetailView.as_view(), name = 'collectiondetail'),
-    path('createcolection/', views.CreateCollection.as_view(), name = 'createcollection'),
+    path('createcollection/', views.CreateCollection.as_view(), name = 'createcollection'),
     path('editcollection/<int:pk>', views.EditCollection.as_view(), name = 'editcollection'),
     path('deletecollection/<int:pk>', views.DeleteCollection.as_view(), name = 'deletecollection'),
 
@@ -33,4 +33,6 @@ urlpatterns = [
     path('editprofile/<int:pk>', views.EditProfileView.as_view(), name = 'editprofile'),
     path('follow/<int:user_id>', views.FollowUser, name = 'follow'),
     path('unfollow/<int:user_id>', views.UnfollowUser, name = 'unfollow'),
+    path('notifications/', views.notifications_view, name = 'notificationspanel'),
+    
 ]

@@ -1,9 +1,9 @@
 {% extends "account/base.html" %}
-{% block head_title %}Edit profile{% endblock %}
+{% block head_title %}Upload image{% endblock %}
 
 {% block content %}
-<h2>Edit Profile</h2>
-<form method="post">
+<h2>Upload image</h2>
+<form method="post" enctype="multipart/form-data">
   {% csrf_token %}
   {% for field in form %}
     <p>
@@ -18,8 +18,9 @@
     </p>
   {% endfor %}
   <p>
-    <input type="submit" value="Update">
+    <input type="submit" value="uploadimage">
   </p>
 </form>
+
 
 {% endblock %}
