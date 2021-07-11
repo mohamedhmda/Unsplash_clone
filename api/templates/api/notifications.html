@@ -12,7 +12,7 @@ Notifications
 
 </div>
 
-<script src="{% static 'api/moment.js' %}"></script>
+<script src="{% static 'api/moment.min.js' %}"></script>
 <script>
     function read_unread_anchor() {
             var fet = fetch("{% url 'notifications:live_all_notification_list' %}")
